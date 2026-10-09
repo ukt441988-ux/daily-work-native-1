@@ -1,0 +1,6 @@
+{
+  "name": "Daily Work",
+  "description": "A simple mobile app connecting daily wage job seekers with employers for local daily jobs with a Tamil and English interface.",
+  "requestFramePermissions": ["microphone", "geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
