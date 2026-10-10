@@ -48,13 +48,7 @@ jobs:
           fi
           mkdir -p android/capacitor-cordova-android-plugins
           if [ ! -f "android/capacitor-cordova-android-plugins/cordova.variables.gradle" ]; then
-            cat << 'EOF' > android/capacitor-cordova-android-plugins/cordova.variables.gradle
-ext {
-  cdvMinSdkVersion = 24
-  cdvPluginPostBuildExtras = []
-  cordovaConfig = [:]
-}
-EOF
+            printf '// Generated variables\next {\n  cdvMinSdkVersion = 24\n  cdvPluginPostBuildExtras = []\n  cordovaConfig = [:]\n}\n' > android/capacitor-cordova-android-plugins/cordova.variables.gradle
           fi
           echo "sdk.dir=$ANDROID_HOME" > android/local.properties
 
