@@ -5455,6 +5455,66 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </a>
               </div>
 
+              {/* Google Play Store Assets (Icon 512x512 & Feature Graphic 1024x500) */}
+              <div className="p-3.5 bg-gradient-to-br from-indigo-950 to-slate-900 rounded-2xl border border-indigo-800/60 text-white space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">🎨</span>
+                    <h5 className="font-bold text-xs text-amber-300">
+                      {language === 'ta' ? 'Google Play Store கிராபிக்ஸ் சொத்துக்கள்' : 'Google Play Store Graphics Assets'}
+                    </h5>
+                  </div>
+                  <span className="text-[10px] bg-indigo-800/80 text-indigo-200 px-2 py-0.5 rounded-full font-mono">
+                    Ready to Upload
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-relaxed">
+                  {language === 'ta'
+                    ? 'Google Play Console-ல் Store Listing அமைக்கும் போது கேட்கப்படும் 512x512 ஐகான் மற்றும் 1024x500 பேனர் படங்களை இங்கிருந்து நேரடியாக பதிவிறக்கலாம்:'
+                    : 'Download the exact 512x512 App Icon and 1024x500 Feature Graphic required by Google Play Console:'}
+                </p>
+
+                <div className="grid grid-cols-2 gap-2.5 pt-1">
+                  {/* 512x512 Icon */}
+                  <div className="bg-slate-900/80 p-2.5 rounded-xl border border-indigo-700/40 flex flex-col items-center text-center space-y-1.5">
+                    <img
+                      src="/playstore-icon-512.png"
+                      alt="Play Store 512x512 Icon"
+                      className="w-16 h-16 rounded-xl shadow-md border border-slate-700 object-cover"
+                    />
+                    <span className="text-[10px] font-bold text-amber-200">512 x 512 Icon</span>
+                    <span className="text-[9px] text-slate-400">PNG Format</span>
+                    <a
+                      href="/playstore-icon-512.png"
+                      download="LuckyApp-PlayStore-Icon-512x512.png"
+                      className="w-full mt-1 py-1.5 px-2 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg flex items-center justify-center gap-1 transition-all"
+                    >
+                      <Download className="w-3 h-3" />
+                      <span>{language === 'ta' ? 'ஐகான் டவுன்லோட்' : 'Download Icon'}</span>
+                    </a>
+                  </div>
+
+                  {/* 1024x500 Feature Graphic */}
+                  <div className="bg-slate-900/80 p-2.5 rounded-xl border border-indigo-700/40 flex flex-col items-center text-center space-y-1.5">
+                    <img
+                      src="/playstore-feature-graphic-1024x500.png"
+                      alt="Play Store Feature Graphic"
+                      className="w-full h-16 rounded-lg shadow-md border border-slate-700 object-cover"
+                    />
+                    <span className="text-[10px] font-bold text-amber-200">1024 x 500 Banner</span>
+                    <span className="text-[9px] text-slate-400">Feature Graphic</span>
+                    <a
+                      href="/playstore-feature-graphic-1024x500.png"
+                      download="LuckyApp-FeatureGraphic-1024x500.png"
+                      className="w-full mt-1 py-1.5 px-2 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg flex items-center justify-center gap-1 transition-all"
+                    >
+                      <Download className="w-3 h-3" />
+                      <span>{language === 'ta' ? 'பேனர் டவுன்லோட்' : 'Download Banner'}</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+
               {/* Play Store Console FAQ Info */}
               <div className="p-3 bg-amber-50/80 rounded-2xl border border-amber-200/80 space-y-1.5 text-xs text-slate-700">
                 <p className="font-black text-amber-950 flex items-center gap-1.5">

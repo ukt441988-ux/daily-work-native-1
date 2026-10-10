@@ -29,6 +29,8 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.14.3'
 
       - name: Setup Android SDK Environment & Accept Licenses
         run: |
@@ -36,11 +38,24 @@ jobs:
           echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
           echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
           export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+          mkdir -p "$ANDROID_HOME/licenses"
+          echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> "$ANDROID_HOME/licenses/android-sdk-license"
+          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> "$ANDROID_HOME/licenses/android-sdk-license"
+          echo "84831b9409646a918e30573bab4c9c91346d8abd" >> "$ANDROID_HOME/licenses/android-sdk-preview-license"
           if [ -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
             yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
-            yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0" || true
+            yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "platforms;android-36" || true
           fi
-          mkdir -p android
+          mkdir -p android/capacitor-cordova-android-plugins
+          if [ ! -f "android/capacitor-cordova-android-plugins/cordova.variables.gradle" ]; then
+            cat << 'EOF' > android/capacitor-cordova-android-plugins/cordova.variables.gradle
+ext {
+  cdvMinSdkVersion = 24
+  cdvPluginPostBuildExtras = []
+  cordovaConfig = [:]
+}
+EOF
+          fi
           echo "sdk.dir=$ANDROID_HOME" > android/local.properties
 
       - name: Install dependencies
@@ -60,8 +75,8 @@ jobs:
         run: |
           chmod +x gradlew
           if [ ! -s "gradle/wrapper/gradle-wrapper.jar" ]; then
-            echo "Restoring gradle wrapper..."
-            gradle wrapper --gradle-version 8.14.3 || true
+            echo "Regenerating gradle wrapper..."
+            gradle wrapper --gradle-version 8.14.3 --distribution-type all || true
           fi
           ./gradlew assembleDebug --no-daemon --stacktrace || gradle assembleDebug --no-daemon --stacktrace
 
