@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Job } from '../types';
 import { WORK_CATEGORIES } from '../data/categories';
 import { useLanguage } from '../context/LanguageContext';
+import { handleDirectDial } from '../utils/phoneUtils';
 import { getTranslatedJob, LANGUAGE_DISPLAY_NAMES } from '../utils/translator';
 import { CategoryIcon } from './CategoryIcon';
 import {
@@ -276,7 +277,8 @@ export const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, on
             <a
               id="modal-btn-call"
               href={`tel:${cleanPhone}`}
-              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm shadow-sm active:scale-95 transition-all text-center"
+              onClick={(e) => handleDirectDial(cleanPhone, e)}
+              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm shadow-sm active:scale-95 transition-all text-center cursor-pointer"
             >
               <Phone className="w-5 h-5 fill-white" />
               <span>

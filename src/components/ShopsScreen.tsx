@@ -408,8 +408,8 @@ export const ShopsScreen: React.FC<ShopsScreenProps> = ({
               </button>
             </div>
 
-            {/* Horizontal Category Pills */}
-            <div className="flex gap-1.5 overflow-x-auto no-scrollbar text-xs pb-0.5">
+            {/* Category Pills (Wrapped cleanly on screen) */}
+            <div className="flex flex-wrap gap-1.5 text-xs pb-0.5">
               {[
                 { id: 'all', label: loc('அனைத்தும்', 'All Shops') },
                 { id: 'cement_building', label: loc('சிமெண்ட் & மணல்', 'Cement & Sand') },

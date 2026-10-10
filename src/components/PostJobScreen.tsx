@@ -1187,7 +1187,7 @@ export const PostJobScreen: React.FC<PostJobScreenProps> = ({
             <span className="block text-[10px] font-bold text-slate-500 mb-1">
               {loc('விரைவு தொகைகள் (விருப்பத்தேர்வு):', 'Quick Presets (Optional):', 'त्वरित चयन:', 'త్వరిత ఎంపిక:', 'പെട്ടെന്നുള്ള തുകകൾ:', 'ತ್ವರಿತ ಆಯ್ಕೆಗಳು:')}
             </span>
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+            <div className="flex flex-wrap items-center gap-1.5 pb-1">
               {wagePresets.map((amount) => (
                 <button
                   key={amount}

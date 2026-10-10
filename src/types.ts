@@ -328,6 +328,8 @@ export interface OwnerPaymentConfig {
   bankTransferEnabled: boolean;
   instructionsTa: string;
   instructionsEn: string;
+  customQrCodeUrl?: string; // Optional custom uploaded QR code image URL / base64
+  adminPin?: string; // Optional custom Owner/Admin PIN (default: '8888')
 }
 
 export type AppUpdateMode = 'none' | 'optional' | 'mandatory' | 'maintenance';

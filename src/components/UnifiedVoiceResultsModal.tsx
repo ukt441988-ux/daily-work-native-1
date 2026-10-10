@@ -4,6 +4,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { getSavedShops } from '../data/shopsData';
 import { WORK_CATEGORIES, getCategoryMagicTheme } from '../data/categories';
 import { matchJobWithQuery, matchSeekerWithQuery, matchShopWithQuery, detectQueryIntent } from '../utils/universalSearch';
+import { handleDirectDial } from '../utils/phoneUtils';
 import { CategoryIcon } from './CategoryIcon';
 import {
   Search,
@@ -376,7 +377,8 @@ export const UnifiedVoiceResultsModal: React.FC<UnifiedVoiceResultsModalProps> =
                           )}
                           <a
                             href={`tel:${cleanPhone}`}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl flex items-center gap-1 text-xs shadow-xs"
+                            onClick={(e) => handleDirectDial(cleanPhone, e)}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl flex items-center gap-1 text-xs shadow-xs cursor-pointer"
                           >
                             <Phone className="w-3 h-3" />
                             <span>{loc('அழைக்க', 'Call', 'कॉल', 'కాల్', 'വിളിക്കുക', 'ಕರೆ')}</span>
@@ -460,7 +462,8 @@ export const UnifiedVoiceResultsModal: React.FC<UnifiedVoiceResultsModalProps> =
                         )}
                         <a
                           href={`tel:${worker.phone}`}
-                          className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-xl flex items-center gap-1 text-xs shadow-xs"
+                          onClick={(e) => handleDirectDial(worker.phone, e)}
+                          className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-xl flex items-center gap-1 text-xs shadow-xs cursor-pointer"
                         >
                           <Phone className="w-3 h-3" />
                           <span>{loc('அழைக்க', 'Call', 'कॉल', 'కాల్', 'വിളിക്കുക', 'ಕರೆ')}</span>

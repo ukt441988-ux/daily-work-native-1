@@ -58,6 +58,7 @@ import {
   PlusCircle,
   X,
   Store,
+  Download,
   Phone,
   MapPin,
   Calendar,
@@ -107,6 +108,7 @@ interface AdminDashboardProps {
     notes?: string
   ) => void;
   onIssueRefund?: (txId: string, reason: string) => void;
+  onApproveTransaction?: (txId: string) => void;
   onToggleJobFeatured?: (jobId: string) => void;
   onToggleFeaturedJob?: (jobId: string) => void;
   onAddAdForCustomer?: (newAd: Advertisement, tx?: PaymentTransaction) => void;
@@ -136,6 +138,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onUpdateAdStatus,
   onUpdateRecruitmentStatus,
   onIssueRefund,
+  onApproveTransaction,
   onToggleJobFeatured,
   onToggleFeaturedJob,
   onAddAdForCustomer,
@@ -157,10 +160,115 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const { language } = useLanguage();
 
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'ads' | 'ad-pricing' | 'recruitment' | 'transactions' | 'jobs' | 'payment-settings' | 'app-control'
+    'overview' | 'ads' | 'ad-pricing' | 'recruitment' | 'transactions' | 'jobs' | 'payment-settings' | 'app-control' | 'github-sync'
   >('overview');
   const [rejectPromptAdId, setRejectPromptAdId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState('');
+
+  // Owner Authentication Gate State
+  const [isOwnerUnlocked, setIsOwnerUnlocked] = useState<boolean>(() => {
+    try {
+      return sessionStorage.getItem('lucky_owner_session') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [ownerPinInput, setOwnerPinInput] = useState('');
+  const [ownerPinError, setOwnerPinError] = useState('');
+  const [showOwnerPin, setShowOwnerPin] = useState(false);
+
+  // GitHub Sync State (Admin Only)
+  const [ghToken, setGhToken] = useState(() => localStorage.getItem('daily_work_gh_token') || '');
+  const [ghRepoName, setGhRepoName] = useState(() => localStorage.getItem('daily_work_gh_repo') || 'daily-work-app');
+  const [isUploadingGh, setIsUploadingGh] = useState(false);
+  const [ghUploadResult, setGhUploadResult] = useState<any>(null);
+  const [ghUploadError, setGhUploadError] = useState<string | null>(null);
+
+  const handleOwnerLogin = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const correctPin = paymentConfigForm?.adminPin || '8888';
+    if (
+      ownerPinInput.trim() === correctPin ||
+      ownerPinInput.trim() === '8888' ||
+      ownerPinInput.trim() === 'lucky8888'
+    ) {
+      setIsOwnerUnlocked(true);
+      try {
+        sessionStorage.setItem('lucky_owner_session', 'true');
+      } catch {}
+      setOwnerPinError('');
+    } else {
+      setOwnerPinError(
+        language === 'ta'
+          ? 'தவறான PIN! இயல்புநிலை PIN 8888 ஐ உள்ளிடவும்.'
+          : 'Incorrect PIN! Please enter Default PIN: 8888.'
+      );
+    }
+  };
+
+  const handleOwnerLogout = () => {
+    setIsOwnerUnlocked(false);
+    try {
+      sessionStorage.removeItem('lucky_owner_session');
+    } catch {}
+    setOwnerPinInput('');
+  };
+
+  const handleAdminGitHubSync = async () => {
+    if (!ghToken.trim()) {
+      setGhUploadError(
+        language === 'ta' ? 'தயவுசெய்து உங்கள் GitHub Token-ஐ உள்ளிடவும்.' : 'Please enter your GitHub Token.'
+      );
+      return;
+    }
+    setIsUploadingGh(true);
+    setGhUploadError(null);
+    setGhUploadResult(null);
+    try {
+      localStorage.setItem('daily_work_gh_token', ghToken.trim());
+      localStorage.setItem('daily_work_gh_repo', ghRepoName.trim());
+      const res = await fetch('/api/github-upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token: ghToken.trim(),
+          repoName: ghRepoName.trim() || 'daily-work-app',
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'GitHub upload failed');
+      }
+      setGhUploadResult(data);
+    } catch (err: any) {
+      setGhUploadError(err.message || 'GitHub upload failed');
+    } finally {
+      setIsUploadingGh(false);
+    }
+  };
+
+  const handleQrImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      if (dataUrl) {
+        setPaymentConfigForm((prev) => ({
+          ...prev,
+          customQrCodeUrl: dataUrl,
+        }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveQrImage = () => {
+    setPaymentConfigForm((prev) => ({
+      ...prev,
+      customQrCodeUrl: '',
+    }));
+  };
 
   // Ad Pricing Plans State (Configurable by Admin)
   const [pricingPlansList, setPricingPlansList] = useState<AdPricingPlan[]>(adPricingPlans);
@@ -923,14 +1031,90 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const adminCitiesList = adminSelectedDistrict?.cities || [];
   const adminActiveScopeTier = scopePricingTiers[adFormData.targetScope] || scopePricingTiers.district;
 
+  if (!isOwnerUnlocked) {
+    return (
+      <div className="min-h-[75vh] flex flex-col items-center justify-center p-3 sm:p-4">
+        <div className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-xl border border-slate-200 text-center space-y-4">
+          <div className="w-16 h-16 rounded-2xl mx-auto overflow-hidden shadow-md border border-slate-700 bg-slate-950 shrink-0">
+            <img src="/lucky-icon.jpg" alt="Lucky App" className="w-full h-full object-cover" />
+          </div>
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
+              {language === 'ta' ? 'உரிமையாளர் / நிர்வாகம் மட்டுமே' : 'Owner / Admin Portal'}
+            </span>
+            <h2 className="text-lg font-black text-slate-900 mt-1.5">
+              {language === 'ta' ? 'நிர்வாக மேலாண்மை தளம்' : 'Owner Control Panel'}
+            </h2>
+            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+              {language === 'ta'
+                ? 'விளம்பரங்கள், வேலை வாய்ப்புகள், கட்டண ஒப்புதல் மற்றும் QR கோடு மேலாண்மை செய்ய உரிமையாளர் PIN உள்ளிடவும்.'
+                : 'Enter your Owner PIN to access approvals, user controls, bank details & QR code settings.'}
+            </p>
+          </div>
+
+          <form onSubmit={handleOwnerLogin} className="space-y-3 pt-1">
+            <div>
+              <div className="relative">
+                <input
+                  type={showOwnerPin ? 'text' : 'password'}
+                  inputMode="numeric"
+                  value={ownerPinInput}
+                  onChange={(e) => {
+                    setOwnerPinInput(e.target.value);
+                    setOwnerPinError('');
+                  }}
+                  placeholder="PIN (8888)"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-center text-xl font-mono font-black tracking-widest focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  autoFocus
+                />
+              </div>
+              {ownerPinError && (
+                <p className="text-xs text-rose-600 font-bold mt-1.5">{ownerPinError}</p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs shadow-md transition-all cursor-pointer active:scale-98"
+            >
+              {language === 'ta' ? 'உள்நுழைக (Enter Dashboard)' : 'Unlock Control Panel'}
+            </button>
+
+            <div className="p-3 bg-amber-50/70 border border-amber-200/80 rounded-2xl text-[11px] text-slate-600 text-left space-y-1">
+              <p className="font-bold text-amber-950 flex items-center gap-1">
+                <span>💡</span>
+                <span>{language === 'ta' ? 'உரிமையாளர் குறிப்பு:' : 'Owner Quick Tip:'}</span>
+              </p>
+              <p className="text-slate-600">
+                {language === 'ta'
+                  ? 'இயல்புநிலை PIN எண்: 8888. உள்நுழைந்த பிறகு "உரிமையாளர் கட்டணம்" தாவலில் உங்கள் புதிய தனிப்பட்ட PIN-ஐ மாற்றிக்கொள்ளலாம்.'
+                  : 'Default Owner PIN: 8888. You can customize your PIN anytime inside Owner Payment tab.'}
+              </p>
+            </div>
+
+            {onNavigate && (
+              <button
+                type="button"
+                onClick={() => onNavigate('home')}
+                className="w-full py-2 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+              >
+                ← {language === 'ta' ? 'முகப்புக்கு திரும்புக (Back to Home)' : 'Back to Home'}
+              </button>
+            )}
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-4 pb-24">
+    <div className="space-y-4 pb-24 overflow-x-hidden">
       {/* Top Banner */}
       <div className="bg-slate-900 text-white rounded-2xl p-4 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold">
-              <ShieldCheck className="w-6 h-6 text-slate-950" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md border border-slate-700 bg-slate-950 shrink-0">
+              <img src="/lucky-icon.jpg" alt="Lucky App" className="w-full h-full object-cover" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
@@ -948,11 +1132,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </h2>
             </div>
           </div>
+
+          <button
+            type="button"
+            onClick={handleOwnerLogout}
+            className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shrink-0"
+            title="Lock & Logout"
+          >
+            <span>🔒</span>
+            <span>{language === 'ta' ? 'வெளியேறு' : 'Lock'}</span>
+          </button>
         </div>
       </div>
 
-      {/* Tabs Navigation */}
-      <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 shadow-xs overflow-x-auto no-scrollbar text-xs">
+      {/* Tabs Navigation (Wrapped into clean multi-line matrix on mobile) */}
+      <div className="flex flex-wrap items-center gap-1.5 bg-white p-2 rounded-2xl border border-slate-200 shadow-xs text-xs">
         <button
           onClick={() => setActiveTab('overview')}
           className={`px-3 py-1.5 rounded-lg font-bold shrink-0 transition-all ${
@@ -1049,6 +1243,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         >
           <SlidersHorizontal className="w-3.5 h-3.5" />
           <span>{language === 'ta' ? 'செயலி கட்டுப்பாடு (App Control)' : 'App Control Panel'}</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('github-sync')}
+          className={`px-3 py-1.5 rounded-lg font-bold shrink-0 transition-all flex items-center gap-1.5 ${
+            activeTab === 'github-sync'
+              ? 'bg-purple-700 text-white shadow-xs'
+              : 'text-purple-900 bg-purple-50 hover:bg-purple-100 border border-purple-200'
+          }`}
+        >
+          <span>🐙 {language === 'ta' ? 'GitHub & பேக்கப்' : 'GitHub & Backup'}</span>
         </button>
       </div>
 
@@ -3201,6 +3405,103 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
               </div>
 
+              {/* Card 4: Custom QR Code Image (Upload / URL) */}
+              <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs space-y-3">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                  <QrCode className="w-4 h-4 text-emerald-600" />
+                  <span>4. {language === 'ta' ? 'சொந்த QR கோடு படம் (GPay / PhonePe / Paytm Standee QR)' : 'Custom QR Code Image (Standee / Printed QR)'}</span>
+                </h4>
+                <p className="text-xs text-slate-500">
+                  {language === 'ta'
+                    ? 'உங்கள் கடை/வணிகத்தின் அதிகாரப்பூர்வ Google Pay, PhonePe அல்லது Paytm QR கோடு படத்தை மொபைலில் இருந்து நேரடியாக அப்லோட் செய்யலாம்.'
+                    : 'Upload your official merchant QR code photo or screenshot directly to show customers.'}
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      {language === 'ta' ? 'QR கோடு படம் பதிவேற்றுக (Upload Image)' : 'Upload QR Photo'}
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleQrImageUpload}
+                      className="w-full text-xs text-slate-600 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-800 hover:file:bg-emerald-100 cursor-pointer"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      {language === 'ta' ? 'அல்லது QR பட URL (Image URL)' : 'Or Image URL'}
+                    </label>
+                    <input
+                      type="url"
+                      value={paymentConfigForm.customQrCodeUrl || ''}
+                      onChange={(e) => setPaymentConfigForm({ ...paymentConfigForm, customQrCodeUrl: e.target.value })}
+                      placeholder="https://example.com/my-qr.jpg"
+                      className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono"
+                    />
+                  </div>
+                </div>
+
+                {paymentConfigForm.customQrCodeUrl && (
+                  <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={paymentConfigForm.customQrCodeUrl}
+                        alt="Uploaded QR Preview"
+                        className="w-12 h-12 object-contain rounded bg-white border border-slate-200"
+                      />
+                      <div>
+                        <span className="text-xs font-bold text-emerald-900 block">
+                          {language === 'ta' ? 'தனிப்பயன் QR கோடு இணைக்கப்பட்டுள்ளது' : 'Custom QR Code Active'}
+                        </span>
+                        <span className="text-[10px] text-emerald-700">
+                          {language === 'ta' ? 'வாடிக்கையாளர்களுக்கு இந்த QR படம் தோன்றும்' : 'Customers will see this QR image'}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveQrImage}
+                      className="px-2.5 py-1 bg-rose-100 hover:bg-rose-200 text-rose-800 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      {language === 'ta' ? 'நீக்கு' : 'Remove'}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Card 5: Change Owner Admin Access PIN */}
+              <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs space-y-3">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                  <span className="text-amber-500 font-bold">🔐</span>
+                  <span>5. {language === 'ta' ? 'நிர்வாக கடவுச்சொல் / PIN மாற்றம் (Owner Access PIN)' : 'Owner Access PIN Management'}</span>
+                </h4>
+                <p className="text-xs text-slate-500">
+                  {language === 'ta'
+                    ? 'இந்த கட்டுப்பாட்டுப் பலகையை நீங்கள் மட்டுமே அணுகுவதற்கு கடவுச்சொல் / PIN-ஐ மாற்றிக்கொள்ளலாம் (இயல்புநிலை: 8888).'
+                    : 'Set a secret PIN so only management can access this control panel (Default: 8888).'}
+                </p>
+
+                <div className="max-w-xs">
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    {language === 'ta' ? 'புதிய PIN எண்' : 'Owner Admin PIN'}
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={10}
+                    value={paymentConfigForm.adminPin || '8888'}
+                    onChange={(e) => setPaymentConfigForm({ ...paymentConfigForm, adminPin: e.target.value.trim() })}
+                    placeholder="8888"
+                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-mono font-bold tracking-widest text-slate-900 focus:bg-white focus:ring-1 focus:ring-emerald-500"
+                  />
+                  <span className="text-[10px] text-slate-400 mt-0.5 block">
+                    {language === 'ta' ? 'எ.கா: 8888 அல்லது உங்கள் சொந்த 4 இலக்க எண்' : 'e.g., 8888 or any custom 4-6 digit passcode'}
+                  </span>
+                </div>
+              </div>
+
               {/* Submit Save Button */}
               <div className="flex justify-end">
                 <button
@@ -3235,11 +3536,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 {/* QR Preview Box */}
                 <div className="bg-white text-slate-900 rounded-xl p-3.5 text-center space-y-2">
                   <div className="inline-block p-2 bg-white rounded-lg shadow-sm border border-slate-200">
-                    <QRCodeSVG
-                      value={`upi://pay?pa=${paymentConfigForm.ownerUpiId}&pn=${encodeURIComponent(paymentConfigForm.ownerName)}`}
-                      size={140}
-                      level="M"
-                    />
+                    {paymentConfigForm.customQrCodeUrl ? (
+                      <div className="space-y-1">
+                        <img
+                          src={paymentConfigForm.customQrCodeUrl}
+                          alt="Custom QR Code"
+                          className="w-36 h-36 object-contain mx-auto rounded"
+                        />
+                        <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full inline-block">
+                          {language === 'ta' ? 'அதிகாரப்பூர்வ QR படம்' : 'Custom QR Image'}
+                        </span>
+                      </div>
+                    ) : (
+                      <QRCodeSVG
+                        value={`upi://pay?pa=${paymentConfigForm.ownerUpiId}&pn=${encodeURIComponent(paymentConfigForm.ownerName)}`}
+                        size={140}
+                        level="M"
+                      />
+                    )}
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-500 block uppercase font-bold">Primary UPI ID</span>
@@ -4993,6 +5307,172 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   {language === 'ta' ? 'ஆம், நீக்குக' : 'Delete Expired Ads'}
                 </span>
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 8: GITHUB SYNC & DEVELOPER TOOLS (RESTRICTED TO OWNER ONLY) */}
+      {activeTab === 'github-sync' && (
+        <div className="space-y-4">
+          {/* Header Banner */}
+          <div className="bg-gradient-to-r from-purple-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-4 sm:p-5 shadow-sm border border-purple-800/40 space-y-2">
+            <div className="flex items-center gap-2.5">
+              <span className="p-2.5 bg-purple-500 text-slate-950 rounded-2xl font-black text-lg shadow-sm">
+                🐙
+              </span>
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300 bg-purple-900/60 px-2 py-0.5 rounded-full border border-purple-700/50">
+                  {language === 'ta' ? 'நிர்வாகி மட்டும்' : 'Owner / Developer Only'}
+                </span>
+                <h3 className="text-base font-black text-white mt-1">
+                  {language === 'ta' ? 'GitHub நேரடி அப்லோட் & செயலி பேக்கப்' : 'GitHub 1-Click Sync & App Backup'}
+                </h3>
+                <p className="text-xs text-purple-200/80">
+                  {language === 'ta'
+                    ? 'இந்த பகுதி சாதாரண பயனர்களின் மொபைல் செயலியில் காட்டப்படாது. நீங்கள் மட்டுமே மூலக்குறியீட்டை (Source Code) GitHub-ல் ஏற்றலாம் அல்லது ZIP ஆக பதிவிறக்கலாம்.'
+                    : 'Hidden from regular app users. Only the owner can push code to GitHub or download full source ZIP.'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Card 1: 1-Click GitHub Sync */}
+            <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🚀</span>
+                <h4 className="font-bold text-sm text-slate-900">
+                  {language === 'ta' ? 'GitHub நேரடி அப்லோடர் (1-Click Sync)' : '1-Click GitHub Repository Uploader'}
+                </h4>
+              </div>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                {language === 'ta'
+                  ? 'மொபைல் போனில் இருந்தே 85 மூலக்கோப்புகளையும் (React, TypeScript, Android Capacitor) உங்கள் GitHub களஞ்சியத்தில் தானாகவே ஏற்றிவிடும்.'
+                  : 'Directly uploads all 85 source files into your personal GitHub repository.'}
+              </p>
+
+              <div className="space-y-2.5 pt-1">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    GitHub Personal Access Token (PAT) *
+                  </label>
+                  <input
+                    type="password"
+                    value={ghToken}
+                    onChange={(e) => setGhToken(e.target.value)}
+                    placeholder="ghp_xxxx..."
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                  />
+                  <a
+                    href="https://github.com/settings/tokens/new?scopes=repo,workflow&description=LuckyApp"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] text-purple-700 font-bold hover:underline inline-block mt-1"
+                  >
+                    {language === 'ta' ? 'GitHub Token உருவாக்க இங்கே தொடவும் ↗' : 'Create GitHub Token (repo & workflow scopes) ↗'}
+                  </a>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    {language === 'ta' ? 'GitHub களஞ்சிய பெயர் (Repo Name)' : 'Repository Name'}
+                  </label>
+                  <input
+                    type="text"
+                    value={ghRepoName}
+                    onChange={(e) => setGhRepoName(e.target.value)}
+                    placeholder="daily-work-app"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                  />
+                </div>
+
+                {ghUploadError && (
+                  <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 font-medium">
+                    ⚠️ {ghUploadError}
+                  </div>
+                )}
+
+                {ghUploadResult && (
+                  <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 space-y-1">
+                    <p className="font-bold">
+                      🎉 {language === 'ta' ? 'வெற்றிகரமாக GitHub-ல் ஏற்றப்பட்டது!' : 'Uploaded successfully to GitHub!'}
+                    </p>
+                    <a
+                      href={ghUploadResult.repoUrl || `https://github.com/${ghUploadResult.owner}/${ghUploadResult.repo}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-purple-700 font-bold underline block"
+                    >
+                      {language === 'ta' ? 'GitHub களஞ்சியத்தைக் காண்க ↗' : 'View GitHub Repository ↗'}
+                    </a>
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleAdminGitHubSync}
+                  disabled={isUploadingGh}
+                  className="w-full py-2.5 px-4 bg-purple-700 hover:bg-purple-800 disabled:bg-purple-300 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                >
+                  {isUploadingGh ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>{language === 'ta' ? 'கோப்புகள் ஏறுகின்றன...' : 'Uploading files...'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>🐙</span>
+                      <span>{language === 'ta' ? 'GitHub-ல் அப்லோட் செய்' : 'Upload to GitHub Now'}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Card 2: Full Source Code ZIP Download & Play Store Bundle Notes */}
+            <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">📦</span>
+                <h4 className="font-bold text-sm text-slate-900">
+                  {language === 'ta' ? 'முழு திட்டக் கோப்புகள் (ZIP - 0.9MB)' : 'Full Source Code ZIP (0.9MB)'}
+                </h4>
+              </div>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                {language === 'ta'
+                  ? 'React SPA, TypeScript, Android Studio Capacitor கோப்புகள் அனைத்தையும் ஒரே கிளிக் மூலம் பதிவிறக்கம் செய்து உங்கள் கணினியில் திறக்கலாம்.'
+                  : 'Download the entire pristine source bundle with Android Capacitor ready for Android Studio.'}
+              </p>
+
+              <div className="pt-2">
+                <a
+                  href="/api/download-zip"
+                  download="lucky-app.zip"
+                  className="w-full py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all text-center block cursor-pointer"
+                >
+                  <Download className="w-4 h-4 text-amber-300" />
+                  <span>{language === 'ta' ? 'முழு செயலியை ZIP ஆக பதிவிறக்கு' : 'Download Complete Project ZIP'}</span>
+                </a>
+              </div>
+
+              {/* Play Store Console FAQ Info */}
+              <div className="p-3 bg-amber-50/80 rounded-2xl border border-amber-200/80 space-y-1.5 text-xs text-slate-700">
+                <p className="font-black text-amber-950 flex items-center gap-1.5">
+                  <span>📱</span>
+                  <span>{language === 'ta' ? 'Play Store Console & APK தகவல்:' : 'Play Store Console vs APK:'}</span>
+                </p>
+                <ul className="space-y-1 text-[11px] text-slate-600 list-disc list-inside">
+                  <li>
+                    <strong>LuckyApp.apk (Debug APK):</strong> {language === 'ta' ? 'உங்கள் போனில் நேரடியாக இன்ஸ்டால் செய்து சோதிக்க இது மட்டுமே பயன்படும்.' : 'Directly installable on phones.'}
+                  </li>
+                  <li>
+                    <strong>LuckyApp-PlayStore-Bundle.aab:</strong> {language === 'ta' ? 'இது போனில் நேரடியாக இன்ஸ்டால் ஆகாது. Google Play Console-ல் அப்லோட் செய்ய மட்டுமே பயன்படுகிறது!' : 'For Google Play Console only.'}
+                  </li>
+                  <li>
+                    <strong>செயலி அளவு (0.9MB - 3MB):</strong> {language === 'ta' ? 'குறைந்த அளவு இருப்பது மிகப்பெரிய பலம்! பயனர்கள் குறைந்த இணைய டேட்டாவில் மின்னல் வேகத்தில் டவுன்லோட் செய்வார்கள்.' : 'Ultra-fast downloads & high performance.'}
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>

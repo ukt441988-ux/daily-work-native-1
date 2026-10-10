@@ -73,7 +73,7 @@ function MainApp() {
   const [favoriteJobDetail, setFavoriteJobDetail] = useState<Job | null>(null);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [settingsInitialTab, setSettingsInitialTab] = useState<'github' | 'export' | 'language' | 'security' | 'location' | 'notifications'>('github');
+  const [settingsInitialTab, setSettingsInitialTab] = useState<'github' | 'export' | 'language' | 'security' | 'location' | 'notifications'>('language');
   const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const handleOpenGitHub = () => {
@@ -1072,8 +1072,8 @@ function MainApp() {
   }, [ads, userLoc?.city, userLoc?.state]);
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col justify-between">
-      <div className="w-full max-w-md mx-auto min-h-screen bg-slate-50 flex flex-col relative shadow-xl border-x border-slate-200">
+    <div className="min-h-screen bg-slate-100 flex flex-col justify-between overflow-x-hidden">
+      <div className="w-full max-w-md mx-auto min-h-screen bg-slate-50 flex flex-col relative shadow-xl border-x border-slate-200 overflow-x-hidden">
         {/* Sticky Mobile Header with Language Selector, Settings, Help & Notification Bell & Admin Switch */}
         <Header
           currentScreen={currentScreen}

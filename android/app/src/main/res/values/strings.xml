@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Daily Work</string>
-    <string name="title_activity_main">Daily Work</string>
+    <string name="app_name">Lucky App</string>
+    <string name="title_activity_main">Lucky App</string>
     <string name="package_name">com.dailywork.app</string>
     <string name="custom_url_scheme">com.dailywork.app</string>
 </resources>

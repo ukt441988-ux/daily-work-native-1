@@ -732,7 +732,7 @@ export function resetScopePricingTiers(): Record<AdTargetScope, AdScopePricingTi
 }
 
 export const DEFAULT_OWNER_PAYMENT_CONFIG: OwnerPaymentConfig = {
-  ownerName: 'Thanigai (Daily Work Owner)',
+  ownerName: 'Thanigai (Lucky App Owner)',
   ownerPhone: '9840123456',
   ownerUpiId: 'connectthanigai@okhdfcbank',
   gpayNumber: '9840123456',
@@ -747,4 +747,6 @@ export const DEFAULT_OWNER_PAYMENT_CONFIG: OwnerPaymentConfig = {
   bankTransferEnabled: true,
   instructionsTa: 'உரிமையாளரின் QR கோடை ஸ்கேன் செய்து அல்லது வங்கி கணக்கிற்கு பணம் செலுத்தி UTR எண்ணை உள்ளிடவும். விளம்பரம் உடனடியாக நேரலையாகும்.',
   instructionsEn: 'Scan Owner UPI QR code or transfer directly to Owner Bank Account, then provide the UTR / Ref ID.',
+  adminPin: '8888',
+  customQrCodeUrl: '',
 };

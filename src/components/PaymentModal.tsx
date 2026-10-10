@@ -83,8 +83,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
   // Build standard UPI URI for QR code and mobile app deep-linking
   const cleanOwnerUpi = ownerPaymentConfig.ownerUpiId || 'connectthanigai@okhdfcbank';
-  const encodedName = encodeURIComponent(ownerPaymentConfig.ownerName || 'Daily Work Admin');
-  const note = encodeURIComponent(`DailyWork-${purpose}-${payerPhone || 'Ad'}`);
+  const encodedName = encodeURIComponent(ownerPaymentConfig.ownerName || 'Lucky App');
+  const note = encodeURIComponent(`LuckyApp-${purpose}-${payerPhone || 'Ad'}`);
   const upiUri = `upi://pay?pa=${cleanOwnerUpi}&pn=${encodedName}&am=${amount}&cu=INR&tn=${note}`;
 
   const handleOpenUpiApp = (app: 'gpay' | 'phonepe' | 'paytm' | 'generic' | 'atm') => {
@@ -438,12 +438,25 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   {/* QR Code Container */}
                   <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs flex flex-col items-center justify-center text-center">
                     <div className="p-2 bg-white rounded-lg border border-slate-200 shadow-xs inline-block">
-                      <QRCodeSVG
-                        value={upiUri}
-                        size={150}
-                        level="M"
-                        includeMargin={false}
-                      />
+                      {ownerPaymentConfig.customQrCodeUrl ? (
+                        <div className="space-y-1.5">
+                          <img
+                            src={ownerPaymentConfig.customQrCodeUrl}
+                            alt="Owner Official QR Code"
+                            className="w-44 h-44 object-contain mx-auto rounded-md shadow-xs"
+                          />
+                          <span className="inline-block px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[9px] font-bold rounded-full">
+                            {language === 'ta' ? 'உரிமையாளரின் QR கோடு' : 'Official Owner QR'}
+                          </span>
+                        </div>
+                      ) : (
+                        <QRCodeSVG
+                          value={upiUri}
+                          size={150}
+                          level="M"
+                          includeMargin={false}
+                        />
+                      )}
                     </div>
                     <p className="text-[11px] text-slate-600 font-bold mt-2">
                       {language === 'ta'
@@ -451,7 +464,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                         : `Scan with Google Pay, PhonePe or Paytm to pay ₹${amount}`}
                     </p>
                     <p className="text-[10px] text-slate-400">
-                      Direct Credit to Owner Bank Account
+                      {language === 'ta' ? 'உரிமையாளர் வங்கி கணக்கிற்கு நேரடி வரவு' : 'Direct Credit to Owner Bank Account'}
                     </p>
                   </div>
 

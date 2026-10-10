@@ -50,11 +50,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onResetOnboarding,
   selectedCountry = 'IN',
   onSelectCountry,
-  initialTab = 'github',
+  initialTab = 'language',
 }) => {
   const { language, setLanguage, loc } = useLanguage();
 
-  const [activeTab, setActiveTab] = useState<'github' | 'export' | 'language' | 'security' | 'notifications' | 'location'>('github');
+  const [activeTab, setActiveTab] = useState<'language' | 'security' | 'notifications' | 'location' | 'github' | 'export'>('language');
 
   useEffect(() => {
     if (initialTab && isOpen) {
@@ -74,6 +74,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     repoUrl: string;
     filesCount: number;
     actionsUrl: string;
+    releasesUrl?: string;
+    workflowSkipped?: boolean;
   } | null>(null);
   const [ghUploadError, setGhUploadError] = useState<string | null>(null);
   const [showTokenHelp, setShowTokenHelp] = useState(false);
@@ -215,27 +217,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {/* Tab Navigation */}
         <div className="flex border-b border-slate-200 bg-slate-50 text-xs font-semibold px-2 py-1.5 gap-1.5 overflow-x-auto scrollbar-none">
-          <button
-            onClick={() => setActiveTab('github')}
-            className={`py-2 px-3 text-center rounded-xl transition-all font-bold whitespace-nowrap flex items-center gap-1.5 shrink-0 ${
-              activeTab === 'github'
-                ? 'bg-emerald-700 text-white shadow-md ring-2 ring-emerald-500/30'
-                : 'text-emerald-900 bg-emerald-100/80 border border-emerald-300 hover:bg-emerald-200/80'
-            }`}
-          >
-            <UploadCloud className="w-4 h-4 text-emerald-300" />
-            <span>🐙 {loc('GitHub அப்லோட்', 'GitHub Sync', 'गिटहब अपलोड', 'గిట్‌హబ్ అప్‌లోడ్', 'GitHub അപ്‌ലോഡ്', 'GitHub ಅಪ್‌ಲೋಡ್')}</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('export')}
-            className={`py-2 px-3 text-center rounded-xl transition-all font-bold whitespace-nowrap flex items-center gap-1.5 shrink-0 ${
-              activeTab === 'export'
-                ? 'bg-slate-900 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-            }`}
-          >
-            <span>📦 {loc('ZIP பதிவிறக்கு', 'Export ZIP', 'डाउनलोड', 'డౌన్‌లోడ్', 'ഡൗൺലോഡ്', 'ಡೌನ್‌ಲೋಡ್')}</span>
-          </button>
+
           <button
             onClick={() => setActiveTab('language')}
             className={`py-2 px-2.5 text-center rounded-xl transition-all whitespace-nowrap shrink-0 ${
@@ -766,6 +748,34 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           </span>
                           <ExternalLink className="w-3.5 h-3.5" />
                         </a>
+                        <a
+                          href={ghUploadResult.releasesUrl || `${ghUploadResult.repoUrl}/releases`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2 bg-emerald-800/60 hover:bg-emerald-800/90 rounded-lg text-emerald-100 underline flex items-center justify-between font-semibold"
+                        >
+                          <span className="flex items-center gap-1.5">
+                            <Download className="w-3.5 h-3.5 text-emerald-300" />
+                            <span>நேரடி APK டவுன்லோட் (Releases பக்கம்)</span>
+                          </span>
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      </div>
+
+                      {/* Download Guide Box */}
+                      <div className="bg-slate-900/90 border border-slate-700/80 rounded-lg p-2.5 text-[10px] text-slate-300 space-y-1.5">
+                        <p className="font-bold text-amber-400 flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                          <span>பச்சை டிக் மார்க் (✔) வந்ததும் APK எங்கு இருக்கும்?</span>
+                        </p>
+                        <ol className="list-decimal list-inside space-y-1 text-slate-300">
+                          <li>
+                            <strong>Actions டேப்:</strong> மேலே உள்ள <span className="text-amber-300">Actions</span> லிங்க்கை திறந்து, மேலே உள்ள பில்டை தொட்டு பக்கத்தின் <strong>கீழே (Bottom)</strong> ஸ்க்ரோல் செய்தால் <strong className="text-emerald-300">DailyWork-Debug-APK</strong> கிடைக்கும்.
+                          </li>
+                          <li>
+                            <strong>Releases பக்கம் (எளிதான வழி):</strong> மேலே உள்ள <span className="text-emerald-300 font-bold">நேரடி APK டவுன்லோட் (Releases)</span> பட்டனைத் தொட்டால், ஜிப் இல்லாமல் நேரடி <strong>DailyWork.apk</strong> கிடைக்கும்!
+                          </li>
+                        </ol>
                       </div>
                     </div>
                   )}

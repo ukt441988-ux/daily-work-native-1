@@ -267,7 +267,7 @@ export const FindWorkersScreen: React.FC<FindWorkersScreenProps> = ({
             <span className="text-xs font-black text-emerald-700">₹{dailyWage}/நாள்</span>
           </div>
 
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+          <div className="flex flex-wrap items-center gap-1.5 pb-1">
             {[600, 700, 800, 900, 1000, 1200, 1500].map((amt) => (
               <button
                 key={amt}

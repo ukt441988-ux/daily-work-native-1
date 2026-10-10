@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.dailywork.app',
-  appName: 'Daily Work',
+  appName: 'Lucky App',
   webDir: 'dist',
   server: {
     androidScheme: 'https',

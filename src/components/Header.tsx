@@ -93,8 +93,13 @@ export const Header: React.FC<HeaderProps> = ({
               className="cursor-pointer flex items-center gap-2"
               onClick={() => onNavigate('home')}
             >
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-300 via-amber-400 to-yellow-500 text-slate-950 flex items-center justify-center font-black shadow-md border border-amber-200">
-                <Clover className="w-5 h-5 text-emerald-950 fill-emerald-900" />
+              <div className="w-8 h-8 rounded-xl overflow-hidden shadow-md border border-slate-700/60 bg-slate-950 shrink-0">
+                <img
+                  src="/lucky-icon.jpg"
+                  alt="Lucky App"
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
               </div>
               <div>
                 <h1 className="font-black text-lg leading-none tracking-tight flex items-center gap-1.5 text-white">
@@ -188,29 +193,7 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             )}
 
-            {/* Direct GitHub Upload Button */}
-            <button
-              id="btn-header-github-upload"
-              onClick={onOpenGitHub || onOpenSettings}
-              className="px-2 py-1 bg-emerald-800 hover:bg-emerald-900 border border-emerald-400/50 rounded-lg text-emerald-100 hover:text-white transition-all flex items-center gap-1 font-bold text-[11px] shadow-xs active:scale-95"
-              title={loc('GitHub நேரடி அப்லோட் (1-Click Sync)', 'GitHub Direct Upload (1-Click Sync)', 'सीधा गिटहब अपलोड', 'డైరెక్ట్ గిట్‌హబ్ అప్‌లోడ్', 'ഡയറക്ട് ഗിറ്റ്ഹബ് അപ്‌ലോഡ്', 'ಡೈರೆಕ್ಟ್ ಗಿಟ್‌ಹಬ್ ಅಪ್‌ಲೋಡ್')}
-              aria-label="Direct GitHub Upload"
-            >
-              <span>🐙</span>
-              <span className="font-bold">GitHub</span>
-            </button>
 
-            {/* Direct Project ZIP Download Button */}
-            <a
-              id="btn-header-download-zip"
-              href="/api/download-zip"
-              download="daily-work-app.zip"
-              className="p-1.5 rounded-lg text-amber-300 hover:text-white hover:bg-emerald-800 transition-colors"
-              title={loc('முழு செயலி பதிவிறக்கம் (ZIP - 0.9MB)', 'Download Full App ZIP (0.9MB)', 'पूरा ऐप डाउनलोड करें', 'యాప్ జిప్ డౌన్‌లోడ్ చేయండి', 'ആപ്പ് സിപ്പ് ഡൗൺലോഡ് ചെയ്യുക', 'ಅಪ್ಲಿಕೇಶನ್ ಜಿಪ್ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ')}
-              aria-label="Download Project ZIP"
-            >
-              <Download className="w-4 h-4" />
-            </a>
 
             {/* My Posts / Profile Button */}
             <button
@@ -227,7 +210,7 @@ export const Header: React.FC<HeaderProps> = ({
               <User className="w-4 h-4" />
             </button>
 
-            {/* Admin Switch */}
+            {/* Admin / Owner Switch */}
             <button
               id="btn-header-admin"
               onClick={() => onNavigate(currentScreen === 'admin' ? 'home' : 'admin')}
@@ -236,10 +219,13 @@ export const Header: React.FC<HeaderProps> = ({
                   ? 'bg-amber-400 text-slate-950 shadow-xs'
                   : 'text-emerald-200 hover:text-white hover:bg-emerald-800'
               }`}
-              title="Admin Panel"
+              title={loc('உரிமையாளர் / நிர்வாகி தளம்', 'Owner / Admin Portal', 'व्यवस्थापक नियंत्रण', 'అడ్మిన్ నియంత్రణ', 'അഡ്മിൻ നിയന്ത്രണം', 'ನಿರ್ವಾಹಕ ನಿಯಂತ್ರಣ')}
+              aria-label="Owner Control Panel"
             >
-              <Shield className="w-3.5 h-3.5" />
-              <span className="text-[10px] hidden sm:inline">Admin</span>
+              <Shield className="w-3.5 h-3.5 text-amber-300" />
+              <span className="text-[10px] hidden sm:inline font-bold">
+                {loc('நிர்வாகம்', 'Admin', 'व्यवस्थापक', 'అడ్మిన్', 'അഡ്മിൻ', 'ಅಡ್ಮಿನ್')}
+              </span>
             </button>
 
             {/* All Languages Toggle Dropdown */}

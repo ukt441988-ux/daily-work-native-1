@@ -1015,7 +1015,7 @@ export const RegisterSeekerScreen: React.FC<RegisterSeekerScreenProps> = ({
             <span className="text-sm font-black text-emerald-700">₹{expectedDailyWage} / {loc('நாள்', 'day', 'दिन', 'రోజు', 'ദിവസം', 'ದಿನ')}</span>
           </div>
 
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 no-scrollbar">
+          <div className="flex flex-wrap items-center gap-1.5 pb-1.5">
             {wagePresets.map((amount) => (
               <button
                 key={amount}
