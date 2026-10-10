@@ -1,6 +1,6 @@
 {
 	"appId": "com.dailywork.app",
-	"appName": "Daily Work",
+	"appName": "Lucky App",
 	"webDir": "dist",
 	"server": {
 		"androidScheme": "https",

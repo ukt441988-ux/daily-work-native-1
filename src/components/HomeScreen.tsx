@@ -844,30 +844,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </button>
       </div>
 
-      {/* 1-Click GitHub Direct Sync Quick Action */}
-      <div className="p-3 bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 text-white rounded-2xl shadow-sm border border-emerald-500/40 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black text-lg shrink-0">
-            🐙
-          </div>
-          <div className="min-w-0 truncate">
-            <p className="font-bold text-xs text-white truncate">
-              {loc('GitHub நேரடி அப்லோடர் (1-Click Sync)', '1-Click Direct GitHub Sync', 'सीधा गिटहब अपलोडर', 'డైరెక్ట్ గిట్‌హబ్ అప్‌లోడర్', 'ഡയറക്ട് ഗിറ്റ്ഹബ് അപ്‌ലോഡർ', 'ಡೈರೆಕ್ಟ್ ಗಿಟ್‌ಹಬ್ ಅಪ್‌ಲೋಡರ್')}
-            </p>
-            <p className="text-[10px] text-emerald-300 truncate">
-              {loc('முழு 85 செயலிக் கோப்புகளையும் GitHub-ல் ஏற்றவும்', 'Upload all 85 source files to GitHub', 'सभी 85 फाइलें गिटहब में अपलोड करें', 'మొత్తం 85 ఫైళ్ళను గిట్‌హబ్‌లో అప్‌లోడ్ చేయండి', '85 ഫയലുകളും GitHub-ലേക്ക് അപ്‌ലോഡ് ചെയ്യുക', 'ಎಲ್ಲಾ 85 ಕಡತಗಳನ್ನು GitHub ಗೆ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ')}
-            </p>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={onOpenGitHub || onOpenSettings}
-          className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shrink-0 shadow transition-all active:scale-95 cursor-pointer"
-        >
-          {loc('திறக்க ↗', 'Open ↗', 'खोलें ↗', 'తెరవండి ↗', 'തുറക്കുക ↗', 'ತೆರೆಯಿರಿ ↗')}
-        </button>
-      </div>
-
       {/* Help & Support / Contact Management & Security Quick Action */}
       <div className="grid grid-cols-2 gap-2">
         <button
