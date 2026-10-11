@@ -1252,7 +1252,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               : 'text-purple-900 bg-purple-50 hover:bg-purple-100 border border-purple-200'
           }`}
         >
-          <span>🐙 {language === 'ta' ? 'GitHub & பேக்கப்' : 'GitHub & Backup'}</span>
+          <span>🐙 {language === 'ta' ? 'GitHub Sync & APK பில்ட்' : 'GitHub Sync & APK Build'}</span>
         </button>
       </div>
 
@@ -5348,8 +5348,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
               <p className="text-xs text-slate-500 leading-relaxed">
                 {language === 'ta'
-                  ? 'மொபைல் போனில் இருந்தே 85 மூலக்கோப்புகளையும் (React, TypeScript, Android Capacitor) உங்கள் GitHub களஞ்சியத்தில் தானாகவே ஏற்றிவிடும்.'
-                  : 'Directly uploads all 85 source files into your personal GitHub repository.'}
+                  ? 'கீழே உள்ள "GitHub-ல் அப்லோட் செய்" பட்டனை அழுத்தினால், அனைத்து மூலக்கோப்புகளும் உடனே உங்கள் GitHub-ல் பதிவேற்றப்பட்டு, புதிய Android APK பில்ட் தானாகவே தொடங்கிவிடும்! (நீங்கள் தனியாக Run workflow தேட வேண்டியதில்லை).'
+                  : 'Click "Upload to GitHub Now" below to upload all source files and automatically trigger a fresh Android APK build! (No need to look for Run workflow manually).'}
               </p>
 
               <div className="space-y-2.5 pt-1">
