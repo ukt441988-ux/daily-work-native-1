@@ -27,10 +27,10 @@ jobs:
           distribution: 'zulu'
           java-version: '21'
 
-      - name: Setup Gradle 8.13
+      - name: Setup Gradle 8.8 (Compatible with AGP 8.5.0)
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.13'
+          gradle-version: '8.8'
 
       - name: Setup Android SDK Environment & Accept Licenses
         run: |
@@ -60,8 +60,8 @@ jobs:
       - name: Build Android Debug APK
         working-directory: android
         run: |
-          echo "Configuring Gradle 8.13 wrapper..."
-          gradle wrapper --gradle-version 8.13 --distribution-type bin || true
+          echo "Configuring Gradle 8.8 wrapper..."
+          gradle wrapper --gradle-version 8.8 --distribution-type bin || true
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace || gradle assembleDebug --no-daemon --stacktrace
 
