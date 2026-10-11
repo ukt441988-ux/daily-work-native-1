@@ -22,14 +22,6 @@ allprojects {
         google()
         mavenCentral()
     }
-    afterEvaluate { project ->
-        if (project.hasProperty("android")) {
-            try {
-                project.android.compileSdk = 35
-                project.android.lintOptions.abortOnError = false
-            } catch (Exception ignored) {}
-        }
-    }
 }
 
 task clean(type: Delete) {

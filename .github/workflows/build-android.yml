@@ -69,10 +69,10 @@ jobs:
         run: |
           chmod +x gradlew
           if [ ! -s "gradle/wrapper/gradle-wrapper.jar" ]; then
-            echo "Regenerating gradle wrapper..."
-            gradle wrapper --gradle-version 8.13 --distribution-type all || true
+            echo "Downloading gradle-wrapper.jar..."
+            curl -sLo gradle/wrapper/gradle-wrapper.jar https://raw.githubusercontent.com/gradle/gradle/v8.13.0/gradle/wrapper/gradle-wrapper.jar || true
           fi
-          ./gradlew assembleDebug --no-daemon --stacktrace -x lint -x test || gradle assembleDebug --no-daemon --stacktrace -x lint -x test
+          ./gradlew assembleDebug --no-daemon --stacktrace -x lint -x test
 
       - name: Prepare APK for Direct Download
         run: |
@@ -95,7 +95,7 @@ jobs:
       - name: Build Android App Bundle (AAB for Play Store)
         working-directory: android
         run: |
-          ./gradlew bundleRelease --no-daemon --stacktrace || gradle bundleRelease --no-daemon --stacktrace || ./gradlew bundleDebug --no-daemon --stacktrace || gradle bundleDebug --no-daemon --stacktrace
+          ./gradlew bundleRelease --no-daemon --stacktrace -x lint -x test || ./gradlew bundleDebug --no-daemon --stacktrace -x lint -x test
         continue-on-error: true
 
       - name: Upload Android App Bundle (AAB for Google Play Console ONLY)
