@@ -179,7 +179,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   // GitHub Sync State (Admin Only)
   const [ghToken, setGhToken] = useState(() => localStorage.getItem('daily_work_gh_token') || '');
-  const [ghRepoName, setGhRepoName] = useState(() => localStorage.getItem('daily_work_gh_repo') || 'daily-work-app');
+  const [ghRepoName, setGhRepoName] = useState(() => localStorage.getItem('daily_work_gh_repo') || 'daily-work-native-1');
   const [isUploadingGh, setIsUploadingGh] = useState(false);
   const [ghUploadResult, setGhUploadResult] = useState<any>(null);
   const [ghUploadError, setGhUploadError] = useState<string | null>(null);
@@ -5406,7 +5406,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </p>
                     <div className="flex flex-wrap gap-2 pt-1">
                       <a
-                        href={ghUploadResult.repoUrl || `https://github.com/${ghUploadResult.owner}/${ghUploadResult.repo}`}
+                        href={ghUploadResult.repoUrl || (ghUploadResult.owner && (ghUploadResult.repoName || ghUploadResult.repo) ? `https://github.com/${ghUploadResult.owner}/${ghUploadResult.repoName || ghUploadResult.repo}` : '#')}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-2.5 py-1.5 bg-purple-700 text-white rounded-lg font-bold hover:bg-purple-800 transition-colors inline-block text-[11px]"
@@ -5414,7 +5414,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         {language === 'ta' ? '📁 Repo பார்க்க ↗' : 'View Repo ↗'}
                       </a>
                       <a
-                        href={`https://github.com/${ghUploadResult.owner}/${ghUploadResult.repo}/actions`}
+                        href={ghUploadResult.actionsUrl || (ghUploadResult.repoUrl ? `${ghUploadResult.repoUrl}/actions` : (ghUploadResult.owner && (ghUploadResult.repoName || ghUploadResult.repo) ? `https://github.com/${ghUploadResult.owner}/${ghUploadResult.repoName || ghUploadResult.repo}/actions` : '#'))}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-2.5 py-1.5 bg-emerald-700 text-white rounded-lg font-bold hover:bg-emerald-800 transition-colors inline-block text-[11px]"
@@ -5422,7 +5422,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         {language === 'ta' ? '⚡ Actions பில்ட் பார்க்க ↗' : 'View Build Actions ↗'}
                       </a>
                       <a
-                        href={`https://github.com/${ghUploadResult.owner}/${ghUploadResult.repo}/releases`}
+                        href={ghUploadResult.releasesUrl || (ghUploadResult.repoUrl ? `${ghUploadResult.repoUrl}/releases` : (ghUploadResult.owner && (ghUploadResult.repoName || ghUploadResult.repo) ? `https://github.com/${ghUploadResult.owner}/${ghUploadResult.repoName || ghUploadResult.repo}/releases` : '#'))}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-2.5 py-1.5 bg-slate-900 text-white rounded-lg font-bold hover:bg-slate-800 transition-colors inline-block text-[11px]"
