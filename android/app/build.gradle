@@ -16,9 +16,22 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            if (file('release.keystore').exists()) {
+                storeFile file('release.keystore')
+                storePassword 'luckyapp123'
+                keyAlias 'luckyapp'
+                keyPassword 'luckyapp123'
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
+            if (file('release.keystore').exists()) {
+                signingConfig signingConfigs.release
+            }
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

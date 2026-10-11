@@ -5394,18 +5394,42 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 )}
 
                 {ghUploadResult && (
-                  <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 space-y-1">
-                    <p className="font-bold">
-                      🎉 {language === 'ta' ? 'வெற்றிகரமாக GitHub-ல் ஏற்றப்பட்டது!' : 'Uploaded successfully to GitHub!'}
+                  <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 space-y-2">
+                    <p className="font-bold flex items-center gap-1.5 text-emerald-900">
+                      <span>🎉</span>
+                      <span>{language === 'ta' ? 'வெற்றிகரமாக GitHub-ல் ஏற்றப்பட்டது!' : 'Uploaded successfully to GitHub!'}</span>
                     </p>
-                    <a
-                      href={ghUploadResult.repoUrl || `https://github.com/${ghUploadResult.owner}/${ghUploadResult.repo}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-purple-700 font-bold underline block"
-                    >
-                      {language === 'ta' ? 'GitHub களஞ்சியத்தைக் காண்க ↗' : 'View GitHub Repository ↗'}
-                    </a>
+                    <p className="text-[11px] text-slate-600">
+                      {language === 'ta'
+                        ? 'GitHub Actions-ல் APK & Play Store Bundle (.aab) பில்ட் இப்போது தானாகவே தொடங்கப்பட்டுள்ளது.'
+                        : 'GitHub Actions is now automatically building your Android APK & Play Store AAB Bundle.'}
+                    </p>
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      <a
+                        href={ghUploadResult.repoUrl || `https://github.com/${ghUploadResult.owner}/${ghUploadResult.repo}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-2.5 py-1.5 bg-purple-700 text-white rounded-lg font-bold hover:bg-purple-800 transition-colors inline-block text-[11px]"
+                      >
+                        {language === 'ta' ? '📁 Repo பார்க்க ↗' : 'View Repo ↗'}
+                      </a>
+                      <a
+                        href={`https://github.com/${ghUploadResult.owner}/${ghUploadResult.repo}/actions`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-2.5 py-1.5 bg-emerald-700 text-white rounded-lg font-bold hover:bg-emerald-800 transition-colors inline-block text-[11px]"
+                      >
+                        {language === 'ta' ? '⚡ Actions பில்ட் பார்க்க ↗' : 'View Build Actions ↗'}
+                      </a>
+                      <a
+                        href={`https://github.com/${ghUploadResult.owner}/${ghUploadResult.repo}/releases`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-2.5 py-1.5 bg-slate-900 text-white rounded-lg font-bold hover:bg-slate-800 transition-colors inline-block text-[11px]"
+                      >
+                        {language === 'ta' ? '📦 APK & AAB பதிவிறக்க ↗' : 'Download APK & AAB ↗'}
+                      </a>
+                    </div>
                   </div>
                 )}
 
