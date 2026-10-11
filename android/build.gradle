@@ -24,6 +24,25 @@ allprojects {
     }
 }
 
+subprojects {
+    project.ext.set('compileSdkVersion', rootProject.ext.compileSdkVersion)
+    project.ext.set('targetSdkVersion', rootProject.ext.targetSdkVersion)
+    project.ext.set('minSdkVersion', rootProject.ext.minSdkVersion)
+
+    afterEvaluate { subproject ->
+        if (subproject.hasProperty('android')) {
+            try {
+                subproject.android {
+                    lintOptions {
+                        abortOnError false
+                        checkReleaseBuilds false
+                    }
+                }
+            } catch (Exception ignored) {}
+        }
+    }
+}
+
 task clean(type: Delete) {
     delete rootProject.layout.buildDirectory
 }

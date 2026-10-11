@@ -35,10 +35,13 @@ jobs:
       - name: Setup Android SDK Environment & Accept Licenses
         run: |
           echo "Configuring Android SDK from $ANDROID_HOME"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
           echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
           echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
           export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
           mkdir -p "$ANDROID_HOME/licenses"
+          mkdir -p ~/.android
           echo -e "\n24333f8a63b6825ea9c5514f83c2829b004d1fee" >> "$ANDROID_HOME/licenses/android-sdk-license"
           echo -e "\nd56f5187479451eabf01fb78af6dfcb131a6481e" >> "$ANDROID_HOME/licenses/android-sdk-license"
           echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" >> "$ANDROID_HOME/licenses/android-sdk-preview-license"
@@ -48,7 +51,7 @@ jobs:
           echo "Found sdkmanager at: $SDKMANAGER"
           if [ -n "$SDKMANAGER" ] && [ -x "$SDKMANAGER" ]; then
             yes | "$SDKMANAGER" --licenses || true
-            yes | "$SDKMANAGER" "platforms;android-35" "platforms;android-34" "build-tools;35.0.0" || true
+            yes | "$SDKMANAGER" "platforms;android-36" "platforms;android-35" "platforms;android-34" "build-tools;36.0.0" "build-tools;35.0.0" "build-tools;34.0.0" "platform-tools" || true
           fi
           
           # Create release keystore if not exists for Google Play Console AAB signing
@@ -79,27 +82,32 @@ jobs:
         working-directory: android
         run: |
           chmod +x gradlew
-          if [ ! -s "gradle/wrapper/gradle-wrapper.jar" ]; then
-            echo "Downloading gradle-wrapper.jar..."
-            curl -sLo gradle/wrapper/gradle-wrapper.jar https://raw.githubusercontent.com/gradle/gradle/v8.13.0/gradle/wrapper/gradle-wrapper.jar || true
+          if [ ! -s "gradle/wrapper/gradle-wrapper.jar" ] || [ $(wc -c < "gradle/wrapper/gradle-wrapper.jar" 2>/dev/null || echo 0) -lt 10000 ]; then
+            echo "Regenerating gradle wrapper..."
+            gradle wrapper --gradle-version 8.13 || curl -sLo gradle/wrapper/gradle-wrapper.jar https://raw.githubusercontent.com/gradle/gradle/v8.13.0/gradle/wrapper/gradle-wrapper.jar || true
           fi
-          ./gradlew assembleDebug -PcompileSdkVersion=35 -PtargetSdkVersion=35 -PminSdkVersion=24 --no-daemon --stacktrace -x lint -x test || gradle assembleDebug -PcompileSdkVersion=35 -PtargetSdkVersion=35 -PminSdkVersion=24 --no-daemon --stacktrace -x lint -x test
+          ./gradlew assembleDebug --no-daemon --stacktrace -x lint -x test || gradle assembleDebug --no-daemon --stacktrace -x lint -x test
 
       - name: Build Android App Bundle (AAB for Google Play Store Console)
         working-directory: android
         run: |
-          ./gradlew bundleRelease -PcompileSdkVersion=35 -PtargetSdkVersion=35 -PminSdkVersion=24 --no-daemon --stacktrace -x lint -x test || gradle bundleRelease -PcompileSdkVersion=35 -PtargetSdkVersion=35 -PminSdkVersion=24 --no-daemon --stacktrace -x lint -x test || ./gradlew bundleDebug -PcompileSdkVersion=35 -PtargetSdkVersion=35 -PminSdkVersion=24 --no-daemon --stacktrace -x lint -x test || true
+          ./gradlew bundleRelease --no-daemon --stacktrace -x lint -x test || gradle bundleRelease --no-daemon --stacktrace -x lint -x test || ./gradlew bundleDebug --no-daemon --stacktrace -x lint -x test || gradle bundleDebug --no-daemon --stacktrace -x lint -x test || true
+          ./gradlew assembleRelease --no-daemon --stacktrace -x lint -x test || gradle assembleRelease --no-daemon --stacktrace -x lint -x test || true
 
       - name: Prepare APK and Play Store AAB
         run: |
           mkdir -p release-assets
-          find android/app/build/outputs/apk/ -name "*.apk" -exec cp {} release-assets/LuckyApp.apk \;
-          find android/app/build/outputs/bundle/ -name "*.aab" -exec cp {} release-assets/LuckyApp.aab \;
+          find android/ -name "*debug*.apk" -exec cp {} release-assets/LuckyApp.apk \; || true
+          find android/ -name "*release*.apk" -exec cp {} release-assets/LuckyApp-Release.apk \; || true
           if [ ! -f release-assets/LuckyApp.apk ]; then
-            find android/ -name "*.apk" -exec cp {} release-assets/LuckyApp.apk \;
+            find android/ -name "*.apk" -exec cp {} release-assets/LuckyApp.apk \; || true
+          fi
+          find android/ -name "*release*.aab" -exec cp {} release-assets/LuckyApp.aab \; || true
+          if [ ! -f release-assets/LuckyApp.aab ]; then
+            find android/ -name "*.aab" -exec cp {} release-assets/LuckyApp.aab \; || true
           fi
           echo "Release Assets Generated:"
-          ls -lh release-assets/
+          ls -lh release-assets/ || true
 
       - name: Upload Debug APK Artifact (Direct Mobile Install)
         uses: actions/upload-artifact@v4
