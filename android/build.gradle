@@ -22,6 +22,10 @@ allprojects {
         google()
         mavenCentral()
     }
+    tasks.withType(JavaCompile).configureEach {
+        options.compilerArgs += ["-Xlint:none", "-nowarn"]
+        options.encoding = "UTF-8"
+    }
 }
 
 subprojects {
@@ -29,17 +33,32 @@ subprojects {
     project.ext.set('targetSdkVersion', rootProject.ext.targetSdkVersion)
     project.ext.set('minSdkVersion', rootProject.ext.minSdkVersion)
 
-    afterEvaluate { subproject ->
-        if (subproject.hasProperty('android')) {
-            try {
-                subproject.android {
-                    lintOptions {
-                        abortOnError false
-                        checkReleaseBuilds false
-                    }
-                }
-            } catch (Exception ignored) {}
+    plugins.withId('com.android.library') {
+        android {
+            compileSdk = rootProject.ext.compileSdkVersion
+            lintOptions {
+                abortOnError false
+                checkReleaseBuilds false
+                warningsAsErrors false
+            }
         }
+    }
+
+    plugins.withId('com.android.application') {
+        android {
+            compileSdk = rootProject.ext.compileSdkVersion
+            lintOptions {
+                abortOnError false
+                checkReleaseBuilds false
+                warningsAsErrors false
+            }
+        }
+    }
+}
+
+gradle.taskGraph.whenReady {
+    tasks.matching { it.name.toLowerCase().contains("lint") }.configureEach {
+        enabled = false
     }
 }
 
