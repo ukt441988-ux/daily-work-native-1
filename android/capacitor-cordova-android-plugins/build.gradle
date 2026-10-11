@@ -17,9 +17,12 @@ apply plugin: 'com.android.library'
 
 android {
     namespace = "capacitor.cordova.android.plugins"
-    compileSdk = 35
+    compileSdk = project.hasProperty('compileSdkVersion') ? rootProject.ext.compileSdkVersion : 36
     defaultConfig {
-        minSdkVersion 24
+        minSdkVersion project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 24
+        targetSdkVersion project.hasProperty('targetSdkVersion') ? rootProject.ext.targetSdkVersion : 36
+        versionCode 1
+        versionName "1.0"
     }
     lintOptions {
         abortOnError = false
@@ -51,8 +54,6 @@ dependencies {
 apply from: "cordova.variables.gradle"
 // PLUGIN GRADLE EXTENSIONS END
 
-if (project.hasProperty('cdvPluginPostBuildExtras') && cdvPluginPostBuildExtras != null) {
-    for (def func : cdvPluginPostBuildExtras) {
-        func()
-    }
+for (def func : cdvPluginPostBuildExtras) {
+    func()
 }
