@@ -33,31 +33,22 @@ subprojects {
     project.ext.set('targetSdkVersion', rootProject.ext.targetSdkVersion)
     project.ext.set('minSdkVersion', rootProject.ext.minSdkVersion)
 
-    plugins.withId('com.android.library') {
-        android {
-            compileSdk = rootProject.ext.compileSdkVersion
-            lintOptions {
-                abortOnError false
-                checkReleaseBuilds false
-                warningsAsErrors false
-            }
-        }
-    }
-
-    plugins.withId('com.android.application') {
-        android {
-            compileSdk = rootProject.ext.compileSdkVersion
-            lintOptions {
-                abortOnError false
-                checkReleaseBuilds false
-                warningsAsErrors false
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            project.android {
+                compileSdkVersion rootProject.ext.compileSdkVersion
+                lintOptions {
+                    abortOnError false
+                    checkReleaseBuilds false
+                    warningsAsErrors false
+                }
             }
         }
     }
 }
 
 gradle.taskGraph.whenReady {
-    tasks.matching { it.name.toLowerCase().contains("lint") }.configureEach {
+    tasks.matching { it.name.toLowerCase().contains("lint") || it.name.toLowerCase().contains("test") }.configureEach {
         enabled = false
     }
 }

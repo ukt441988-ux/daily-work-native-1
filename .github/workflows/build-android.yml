@@ -51,7 +51,7 @@ jobs:
           echo "Found sdkmanager at: $SDKMANAGER"
           if [ -n "$SDKMANAGER" ] && [ -x "$SDKMANAGER" ]; then
             yes | "$SDKMANAGER" --licenses || true
-            yes | "$SDKMANAGER" "platforms;android-36" "platforms;android-35" "platforms;android-34" "build-tools;36.0.0" "build-tools;35.0.0" "build-tools;34.0.0" "platform-tools" || true
+            yes | "$SDKMANAGER" "platforms;android-35" "platforms;android-34" "build-tools;35.0.0" "build-tools;34.0.0" "platform-tools" || true
           fi
           
           # Create release keystore if not exists for Google Play Console AAB signing
@@ -88,13 +88,13 @@ jobs:
             echo "Regenerating gradle wrapper..."
             gradle wrapper --gradle-version 8.13 || curl -sLo gradle/wrapper/gradle-wrapper.jar https://raw.githubusercontent.com/gradle/gradle/v8.13.0/gradle/wrapper/gradle-wrapper.jar || true
           fi
-          ./gradlew assembleDebug --no-daemon --stacktrace -x lint -x test || gradle assembleDebug --no-daemon --stacktrace -x lint -x test
+          ./gradlew assembleDebug -PcompileSdkVersion=35 -PtargetSdkVersion=35 -PminSdkVersion=24 --no-daemon --stacktrace -x lint -x test || gradle assembleDebug -PcompileSdkVersion=35 -PtargetSdkVersion=35 -PminSdkVersion=24 --no-daemon --stacktrace -x lint -x test
 
       - name: Build Android App Bundle (AAB for Google Play Store Console)
         working-directory: android
         run: |
-          ./gradlew bundleRelease --no-daemon --stacktrace -x lint -x test || gradle bundleRelease --no-daemon --stacktrace -x lint -x test || ./gradlew bundleDebug --no-daemon --stacktrace -x lint -x test || gradle bundleDebug --no-daemon --stacktrace -x lint -x test || true
-          ./gradlew assembleRelease --no-daemon --stacktrace -x lint -x test || gradle assembleRelease --no-daemon --stacktrace -x lint -x test || true
+          ./gradlew bundleRelease -PcompileSdkVersion=35 -PtargetSdkVersion=35 -PminSdkVersion=24 --no-daemon --stacktrace -x lint -x test || gradle bundleRelease -PcompileSdkVersion=35 -PtargetSdkVersion=35 -PminSdkVersion=24 --no-daemon --stacktrace -x lint -x test || ./gradlew bundleDebug -PcompileSdkVersion=35 -PtargetSdkVersion=35 -PminSdkVersion=24 --no-daemon --stacktrace -x lint -x test || gradle bundleDebug -PcompileSdkVersion=35 -PtargetSdkVersion=35 -PminSdkVersion=24 --no-daemon --stacktrace -x lint -x test || true
+          ./gradlew assembleRelease -PcompileSdkVersion=35 -PtargetSdkVersion=35 -PminSdkVersion=24 --no-daemon --stacktrace -x lint -x test || gradle assembleRelease -PcompileSdkVersion=35 -PtargetSdkVersion=35 -PminSdkVersion=24 --no-daemon --stacktrace -x lint -x test || true
 
       - name: Prepare APK and Play Store AAB
         run: |
