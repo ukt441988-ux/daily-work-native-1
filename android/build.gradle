@@ -22,38 +22,8 @@ allprojects {
         google()
         mavenCentral()
     }
-    tasks.withType(JavaCompile).configureEach {
-        options.compilerArgs += ["-Xlint:none", "-nowarn"]
-        options.encoding = "UTF-8"
-    }
-}
-
-subprojects {
-    project.ext.set('compileSdkVersion', rootProject.ext.compileSdkVersion)
-    project.ext.set('targetSdkVersion', rootProject.ext.targetSdkVersion)
-    project.ext.set('minSdkVersion', rootProject.ext.minSdkVersion)
-
-    afterEvaluate { project ->
-        if (project.hasProperty('android')) {
-            project.android {
-                compileSdkVersion rootProject.ext.compileSdkVersion
-                lintOptions {
-                    abortOnError false
-                    checkReleaseBuilds false
-                    warningsAsErrors false
-                }
-            }
-        }
-    }
-}
-
-gradle.taskGraph.whenReady {
-    tasks.matching { it.name.toLowerCase().contains("lint") || it.name.toLowerCase().contains("test") }.configureEach {
-        enabled = false
-    }
 }
 
 task clean(type: Delete) {
     delete rootProject.layout.buildDirectory
 }
-
