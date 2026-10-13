@@ -24,6 +24,7 @@ import {
   toggleJobFavorite,
   toggleWorkerFavorite,
 } from '../utils/favoriteStorage';
+import { handleDirectDial } from '../utils/phoneUtils';
 
 interface FavoritesScreenProps {
   jobs: Job[];
@@ -233,7 +234,8 @@ export const FavoritesScreen: React.FC<FavoritesScreenProps> = ({
                     <div className="pt-2 border-t border-slate-100 flex items-center gap-2">
                       <a
                         href={`tel:${cleanPhone}`}
-                        className="flex-1 py-2 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                        onClick={(e) => handleDirectDial(cleanPhone, e)}
+                        className="flex-1 py-2 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs cursor-pointer active:scale-95"
                       >
                         <PhoneCall className="w-3.5 h-3.5" />
                         <span>{loc('அழைக்க', 'Call Now')}</span>
@@ -347,7 +349,8 @@ export const FavoritesScreen: React.FC<FavoritesScreenProps> = ({
                     <div className="pt-2 border-t border-slate-100 flex items-center gap-2">
                       <a
                         href={`tel:${cleanPhone}`}
-                        className="flex-1 py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                        onClick={(e) => handleDirectDial(cleanPhone, e)}
+                        className="flex-1 py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs cursor-pointer active:scale-95"
                       >
                         <PhoneCall className="w-3.5 h-3.5" />
                         <span>{loc('அழைக்க', 'Call Now')}</span>

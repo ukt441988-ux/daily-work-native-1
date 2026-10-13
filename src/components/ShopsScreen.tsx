@@ -10,6 +10,7 @@ import {
   extractShopDetailsFromRawInput,
   MaterialEstimationResult,
 } from '../utils/aiPromptsHelper';
+import { handleDirectDial, formatDialerUrl } from '../utils/phoneUtils';
 import {
   Store,
   MapPin,
@@ -567,11 +568,12 @@ export const ShopsScreen: React.FC<ShopsScreenProps> = ({
                       </a>
 
                       <a
-                        href={`tel:${cleanPhone}`}
+                        href={formatDialerUrl(cleanPhone)}
+                        onClick={(e) => handleDirectDial(cleanPhone, e)}
                         className="px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 transition-all"
                       >
-                        <Phone className="w-3.5 h-3.5 fill-white" />
-                        <span>{loc('அழைக்க', 'Call Store')}</span>
+                        <Phone className="w-3.5 h-3.5 fill-white shrink-0" />
+                        <span>{loc('அழைக்க', 'Call Store')} {shop.phone ? `(${shop.phone})` : ''}</span>
                       </a>
                     </div>
                   </div>
@@ -987,12 +989,13 @@ export const ShopsScreen: React.FC<ShopsScreenProps> = ({
                   </div>
 
                   <a
-                    href={`tel:${cleanPhone}`}
+                    href={formatDialerUrl(cleanPhone)}
+                    onClick={(e) => handleDirectDial(cleanPhone, e)}
                     className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all active:scale-95 cursor-pointer"
                   >
                     <Phone className="w-4 h-4 fill-white" />
                     <span>
-                      {loc('கடைக்கு நேரடியாக அழைக்கவும்', 'Call Store Directly')}
+                      {loc('கடைக்கு நேரடியாக அழைக்கவும்', 'Call Store Directly')} {cleanPhone ? `(${cleanPhone})` : ''}
                     </span>
                   </a>
                 </div>

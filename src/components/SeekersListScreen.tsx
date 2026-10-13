@@ -6,7 +6,7 @@ import { getSavedShops } from '../data/shopsData';
 import { getTranslatedSeeker, getTranslatedJob } from '../utils/translator';
 import { matchSeekerWithQuery, matchJobWithQuery, matchShopWithQuery, detectQueryIntent } from '../utils/universalSearch';
 import { useLanguage } from '../context/LanguageContext';
-import { handleDirectDial } from '../utils/phoneUtils';
+import { handleDirectDial, formatDialerUrl } from '../utils/phoneUtils';
 import { CategoryIcon } from './CategoryIcon';
 import {
   Users,
@@ -460,12 +460,12 @@ export const SeekersListScreen: React.FC<SeekersListScreenProps> = ({
 
                   <div className="flex items-center gap-2 pt-1 border-t border-slate-100">
                     <a
-                      href={`tel:${cleanPhone}`}
+                      href={formatDialerUrl(cleanPhone)}
                       onClick={(e) => handleDirectDial(cleanPhone, e)}
                       className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-xl flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
                     >
                       <Phone className="w-3.5 h-3.5 fill-white" />
-                      <span>{loc('அழைக்க', 'Call Now', 'कॉल करें', 'కాల్ చేయండి', 'വിളിക്കുക', 'ಕರೆ ಮಾಡಿ')}</span>
+                      <span>{loc('அழைக்க', 'Call Now', 'कॉल करें', 'కాల్ చేయండి', 'വിളിക്കുക', 'ಕರೆ ಮಾಡಿ')} {cleanPhone ? `(${cleanPhone})` : ''}</span>
                     </a>
                   </div>
                 </div>
@@ -676,13 +676,13 @@ export const SeekersListScreen: React.FC<SeekersListScreenProps> = ({
               <div className="pt-1 flex items-center gap-2">
                 <a
                   id={`seeker-call-${seeker.id}`}
-                  href={`tel:${cleanPhone}`}
+                  href={formatDialerUrl(cleanPhone)}
                   onClick={(e) => handleDirectDial(cleanPhone, e)}
                   className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 text-xs shadow-xs active:scale-95 transition-all text-center cursor-pointer"
                 >
-                  <Phone className="w-3.5 h-3.5 fill-white" />
-                  <span>
-                    {loc('போன் செய்ய', 'Call Worker', 'कॉल करें', 'కాల్ చేయండి', 'വിളിക്കുക', 'ಕರೆ ಮಾಡಿ')}
+                  <Phone className="w-3.5 h-3.5 fill-white shrink-0" />
+                  <span className="truncate">
+                    {loc('போன் செய்ய', 'Call', 'कॉल करें', 'కాల్ చేయండి', 'വിളിക്കുക', 'ಕರೆ ಮಾಡಿ')} {seeker.mobileNumber ? `(${seeker.mobileNumber})` : ''}
                   </span>
                 </a>
 

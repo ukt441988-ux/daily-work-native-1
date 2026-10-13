@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Job } from '../types';
 import { WORK_CATEGORIES } from '../data/categories';
 import { useLanguage } from '../context/LanguageContext';
-import { handleDirectDial } from '../utils/phoneUtils';
+import { handleDirectDial, formatDialerUrl } from '../utils/phoneUtils';
 import { getTranslatedJob, LANGUAGE_DISPLAY_NAMES } from '../utils/translator';
 import { CategoryIcon } from './CategoryIcon';
 import {
